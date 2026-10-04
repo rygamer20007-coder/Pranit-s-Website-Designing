@@ -23,11 +23,25 @@ revealEls.forEach(el => observer.observe(el));
 // footer year
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// contact form (no backend yet — just confirms locally)
+// contact form — sends to Formspree, which forwards it to your email
 const form = document.getElementById('quoteForm');
 const status = document.getElementById('formStatus');
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  status.textContent = "Thanks — we'll get back to you soon.";
-  form.reset();
+  status.textContent = "Sending...";
+  try {
+    const response = await fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (response.ok) {
+      status.textContent = "Thanks — we'll get back to you soon.";
+      form.reset();
+    } else {
+      status.textContent = "Something went wrong. Please email us directly instead.";
+    }
+  } catch (err) {
+    status.textContent = "Something went wrong. Please email us directly instead.";
+  }
 });
